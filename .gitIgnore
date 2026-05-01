@@ -1,0 +1,19 @@
+
+# Prerequisites
+*.log
+*.tmp
+.env
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+bin/
+obj/
+
+# Dependencies
+node_modules/
+vendor/
