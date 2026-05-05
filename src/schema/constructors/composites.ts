@@ -2,7 +2,7 @@ import type { Schema } from "../types/schema.js";
 import type { InferObjectShape, ObjectShape } from "../types/inference.js";
 import { defineSchema } from "../config/defineSchema.js";
 import { expectedTypeFailure } from "../utils/failures.js";
-import { isObject } from "../utils/parse.js";
+import { isObject } from "../utils/assertions.js";
 import { finalizeArrayResult, finalizeParseResult } from "../utils/results.js";
 import { emitObjectJSON } from "../emitters/emitObjectJSON.js";
 
