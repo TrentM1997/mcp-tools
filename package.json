@@ -1,5 +1,9 @@
-{
+{	
+	"name": "mcp-toolkit-library",
+	"type": "module",
+	"version": "1.0.0",
 	"dependencies": {
-		"@modelcontextprotocol/server": "2.0.0-alpha.2"
+		"@modelcontextprotocol/server": "2.0.0-alpha.2",
+		    "typescript": "^5.0.0"
 	}
 }
