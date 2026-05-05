@@ -1,0 +1,17 @@
+import type { Schema, OptionalSchema } from "../types/schema.js";
+
+function parse<T>(schema: Schema<T>, input: unknown) {
+  return schema.parse(input);
+}
+
+function isObject(input: unknown) {
+  return input !== null && !Array.isArray(input) && typeof input === "object";
+}
+
+function isOptionalSchema<T>(
+  value: Schema<T> | OptionalSchema<T>,
+): value is OptionalSchema<T> {
+  return "kind" in value && value.kind === "optional";
+}
+
+export { parse, isObject, isOptionalSchema };
