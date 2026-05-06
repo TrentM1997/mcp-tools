@@ -1,9 +1,14 @@
-{	
-	"name": "mcp-toolkit-library",
-	"type": "module",
-	"version": "1.0.0",
-	"dependencies": {
-		"@modelcontextprotocol/server": "2.0.0-alpha.2",
-		    "typescript": "^5.0.0"
-	}
+{
+  "name": "mcp-tools",
+  "type": "module",
+  "version": "1.0.0",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "typescript": "^5.0.0"
+  }
 }

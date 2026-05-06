@@ -57,7 +57,7 @@ function parseInferredObjectSchema<TShape extends ObjectShape>(
     const propertyValue = input[key as string];
 
     if (isOptionalSchema(propertySchema)) {
-      if (key in input) {
+      if (Object.hasOwn(input, key)) {
         parseOptionalSchema(
           propertySchema,
           propertyValue,

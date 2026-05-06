@@ -1,19 +1,18 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",               // Use Node's native ESM support
-    "moduleResolution": "NodeNext",     // Matches Node's modern resolution
-    "esModuleInterop": true,            // Better compatibility with CommonJS
-    "allowSyntheticDefaultImports": true, // Allow 'import X from y' for modules with no default export
-    "resolveJsonModule": true,          // Import .json files as modules
-    "isolatedModules": true,            // Required for many modern transpilers like SWC/Vite
-    "verbatimModuleSyntax": true,       // Ensures type-only imports stay type-only
-    /* Output & Environment */
-    "target": "ES2022",                 // Modern JS version for better performance
-    "outDir": "./dist",                 // Where compiled JS goes
-    "rootDir": "./src",                 // Where your source TS lives
-    "strict": true,                     // Enable all strict type-checking
-    "skipLibCheck": true                // Skip checking node_modules for speed
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,            
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,          
+    "isolatedModules": true,            
+    "verbatimModuleSyntax": true,       
+    "target": "ES2022",                  
+    "rootDir": "./src",                  
+    "strict": true,                      
+    "skipLibCheck": true,                
+    "outDir": "./dist"
   },
-  "include": ["src/**/*"],              // Only compile code in src
-  "exclude": ["node_modules", "dist"]   // Ignore these folders
+  "include": ["src/**/*"],              
+  "exclude": ["node_modules", "dist"]   
 }
