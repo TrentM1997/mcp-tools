@@ -4,6 +4,12 @@ type SchemaEntry = Schema<any> | OptionalSchema<any>;
 
 type ObjectShape = Record<string, SchemaEntry>;
 
+type ParsedShape<TShape extends ObjectShape> = {
+  [K in keyof TShape]: InferField<TShape[K]>;
+};
+
+type ShapeKey<TShape extends ObjectShape> = Extract<keyof TShape, string>;
+
 type InferField<TField> =
   TField extends Schema<infer TValue>
     ? TValue
@@ -14,9 +20,6 @@ type InferField<TField> =
 type OptionalKeys<TShape extends ObjectShape> = {
   [K in keyof TShape]: TShape[K] extends OptionalSchema<any> ? K : never;
 }[keyof TShape];
-
-type InferSchema<TSchema> =
-  TSchema extends Schema<infer TValue> ? TValue : never;
 
 type RequiredKeys<TShape extends ObjectShape> = Exclude<
   keyof TShape,
@@ -36,11 +39,12 @@ type InferObjectShape<TShape extends ObjectShape> = RequiredPart<TShape> &
 
 export type {
   InferObjectShape,
-  InferSchema,
   ObjectShape,
   OptionalKeys,
   InferField,
   RequiredKeys,
   RequiredPart,
   OptionalPart,
+  ShapeKey,
+  ParsedShape,
 };

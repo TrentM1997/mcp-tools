@@ -19,7 +19,7 @@ function finalizeParseResult<TShape extends ObjectShape>(
     };
   }
 
-  return { ok: true, value: values };
+  return { ok: true, value: values as InferObjectShape<TShape> };
 }
 
 function finalizeArrayResult<T>(
