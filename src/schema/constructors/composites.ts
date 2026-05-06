@@ -12,7 +12,7 @@ function object<TShape extends ObjectShape>(
   return defineSchema({
     parseAtPath(input, path) {
       if (!isObject(input)) {
-        return expectedTypeFailure(path, "object");
+        return expectedTypeFailure(path, "object", input);
       }
       return finalizeParseResult(input, shape, path);
     },
@@ -26,7 +26,7 @@ function array<T>(item: Schema<T>): Schema<Array<T>> {
   return defineSchema({
     parseAtPath(input, path) {
       if (!Array.isArray(input)) {
-        return expectedTypeFailure(path, "array");
+        return expectedTypeFailure(path, "array", input);
       }
 
       return finalizeArrayResult(input, path, item);

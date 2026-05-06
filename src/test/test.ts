@@ -1,23 +1,14 @@
-import { ToolManager, s, defineTool } from "mcp-tools";
+import { failureTestInput, weatherToolInput } from "./mockInputs.js";
+import { weatherTool, getUser, mockRegistry } from "./mockTools.js";
 
-const getUser = defineTool({
-  name: "get_user",
-  description: "Fetch a user by ID",
-  inputSchema: s.object({
-    id: s.string(),
-    verbose: s.optional(s.boolean()),
-  }),
-  async handler(input) {
-    return { id: input.id, name: "Trent" };
-  },
-});
+mockRegistry.register(getUser);
 
-const registry = new ToolManager();
+mockRegistry.register(weatherTool);
 
-registry.register(getUser);
+async function getLocalWeather(location: unknown) {
+  return mockRegistry.call("weather_tool", location);
+}
 
-const request = await registry.call("get_user", {
-  id: crypto.randomUUID(),
-});
+const result = await getLocalWeather(failureTestInput);
 
-console.log(request);
+console.dir(result, { depth: null });

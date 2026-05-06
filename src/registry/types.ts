@@ -41,8 +41,9 @@ type ToolCallResult<T = unknown> =
   | {
       ok: false;
       code: "not_found" | "invalid_input" | "handler_error" | "invalid_output";
-      message: string;
+      reason: string;
       issues?: Issue[];
+      formattedIssues?: string;
     };
 
 type ToolsRegistered = Map<string, StoredTool>;
@@ -53,6 +54,16 @@ interface ToolMetadata {
   inputJSONSchema: JSONSchema;
 }
 
+type RegistrationResult =
+  | {
+      ok: true;
+      registered: ToolMetadata;
+    }
+  | {
+      ok: false;
+      reason: string;
+    };
+
 export type {
   ToolDefinition,
   ToolHandler,
@@ -62,4 +73,5 @@ export type {
   ToolsRegistered,
   ToolCallResult,
   ToolMetadata,
+  RegistrationResult,
 };

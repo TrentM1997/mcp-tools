@@ -1,3 +1,4 @@
+import { createPathErrorMessage } from "../../schema/utils/failures.js";
 import type { StoredTool, ToolCallResult } from "../types.js";
 
 export class ToolRunner {
@@ -8,13 +9,13 @@ export class ToolRunner {
     rawInput: unknown,
   ): Promise<ToolCallResult<unknown>> {
     const parsed = this.validateToolInput(tool, rawInput);
-
     if (!parsed.ok) {
       return {
         ok: false,
         code: "invalid_input",
-        message: "Tool input failed validation",
+        reason: "Tool input failed validation",
         issues: parsed.issues,
+        formattedIssues: createPathErrorMessage(parsed.issues),
       };
     }
 
@@ -37,8 +38,9 @@ export class ToolRunner {
       return {
         ok: false,
         code: "invalid_output",
-        message: "Tool output failed validation",
+        reason: "Tool output failed validation",
         issues: validatedOutput.issues,
+        formattedIssues: createPathErrorMessage(validatedOutput.issues),
       };
     }
 
@@ -60,7 +62,7 @@ export class ToolRunner {
       return {
         ok: false,
         code: "handler_error",
-        message: "Tool Handler threw during execution",
+        reason: "Tool Handler threw during execution",
       };
     }
   }
