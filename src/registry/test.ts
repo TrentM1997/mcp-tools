@@ -1,31 +1,23 @@
-import { defineTool } from "./config/defineTool.js";
-import { createRegistry } from "./config/createRegistry.js";
-import { s } from "../schema/index.js";
-import { getUser } from "./tools/mockRegisteredTools.js";
+import { ToolManager, s, defineTool } from "mcp-tools";
 
-const ToolInputSchema = s.object({
-  methods: s.object({
-    placeholder: s.literal("Function Definition"),
+const getUser = defineTool({
+  name: "get_user",
+  description: "Fetch a user by ID",
+  inputSchema: s.object({
+    id: s.string(),
+    verbose: s.optional(s.boolean()),
   }),
+  async handler(input) {
+    return { id: input.id, name: "Trent" };
+  },
 });
 
-const input = {
-  name: "Tool One",
-  description: "First time defining a tool",
-  inputSchema: ToolInputSchema,
-  handler: (input: any) => {
-    console.log(input);
-  },
-};
-
-const tool = defineTool(input);
-
-const registry = createRegistry();
-
-registry.register(tool);
+const registry = new ToolManager();
 
 registry.register(getUser);
 
-console.dir(registry.get("get_user"), {
-  depth: null,
+const request = await registry.call("get_user", {
+  id: crypto.randomUUID(),
 });
+
+console.log(request);
