@@ -1,10 +1,10 @@
 import type {
   StoredTool,
-  ToolDefinition,
   ToolMetadata,
   ToolCallResult,
   RegistrationResult,
-} from "../types.js";
+} from "../types/management.js";
+import type { ToolDefinition } from "../types/definition.js";
 import { ToolPreparer } from "./toolPreparer.js";
 import { ToolRunner } from "./toolRunner.js";
 

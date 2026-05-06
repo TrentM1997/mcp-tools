@@ -1,22 +1,6 @@
-import type { Issue } from "../schema/types/result.js";
-import type { JSONSchema, Schema } from "../schema/types/schema.js";
-
-type ToolHandlerWithContext<TInput, TOutput, TContext> = (
-  input: TInput,
-  context: TContext,
-) => TOutput | Promise<TOutput>;
-
-type ToolHandler<TInput, TOutput> = (
-  input: TInput,
-) => TOutput | Promise<TOutput>;
-
-interface ToolDefinition<TInput, TOutput = unknown> {
-  name: string;
-  description: string;
-  inputSchema: Schema<TInput>;
-  handler: ToolHandler<TInput, TOutput>;
-  outputSchema?: Schema<TOutput>;
-}
+import type { Issue } from "../../schema/types/result.js";
+import type { JSONSchema, Schema } from "../../schema/types/schema.js";
+import type { ToolHandler } from "./definition.js";
 
 interface NormalizedTool<TInput = unknown, TOutput = unknown> {
   name: string;
@@ -65,13 +49,10 @@ type RegistrationResult =
     };
 
 export type {
-  ToolDefinition,
-  ToolHandler,
   NormalizedTool,
-  ToolHandlerWithContext,
   StoredTool,
-  ToolsRegistered,
   ToolCallResult,
-  ToolMetadata,
   RegistrationResult,
+  ToolsRegistered,
+  ToolMetadata,
 };
