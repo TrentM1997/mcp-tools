@@ -4,6 +4,7 @@ import {
   expectedTypeFailure,
 } from "../utils/failures.js";
 import { defineSchema } from "../config/defineSchema.js";
+import { isValidNumber } from "../utils/assertions.js";
 
 function string(): Schema<string> {
   return defineSchema({
@@ -40,7 +41,7 @@ function boolean(): Schema<boolean> {
 function number(): Schema<number> {
   return defineSchema({
     parseAtPath(input, path) {
-      if (typeof input !== "number") {
+      if (!isValidNumber(input)) {
         return expectedTypeFailure(path, "number", input);
       }
       return { ok: true, value: input };

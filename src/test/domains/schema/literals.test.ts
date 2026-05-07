@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { s } from "../../index.js";
+import { s } from "../../../index.js";
 
 describe("literal()", () => {
   test("reports the received literal value on mismatch", () => {

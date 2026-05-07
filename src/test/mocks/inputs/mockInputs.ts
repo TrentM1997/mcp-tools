@@ -1,5 +1,3 @@
-import { idText, version } from "typescript";
-
 const clinton = {
   city: "Clinton",
   state: "Illinois",

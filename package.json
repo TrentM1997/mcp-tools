@@ -3,7 +3,10 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
-    "test": "vitest run"
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "pnpm typecheck && pnpm test"
   },
   "exports": {
     ".": {

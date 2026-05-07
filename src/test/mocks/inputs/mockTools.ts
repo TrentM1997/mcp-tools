@@ -1,5 +1,5 @@
-import { defineTool, s } from "../../index.js";
-import { WeatherToolInputSchema } from "./mockSchemas.js";
+import { defineTool, s } from "../../../index.js";
+import { WeatherToolInputSchema } from "../schema/mockSchemas.js";
 
 const getUser = defineTool({
   name: "get_user",

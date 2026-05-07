@@ -4,10 +4,18 @@ import type {
   ShapeKey,
   ParsedShape,
   InferObjectShape,
+  UnionMembers,
 } from "../types/inference.js";
-import type { Path, Issue } from "../types/result.js";
+import type {
+  Path,
+  Issue,
+  ParseFailedResult,
+  ParseSuccessResult,
+  ParseResult,
+} from "../types/result.js";
 import { isOptionalSchema } from "./assertions.js";
 import { parseOptionalSchema, parseRequiredSchema } from "./parsers.js";
+import { chooseMoreRelevantFailure } from "./helpers.js";
 
 function parseArrayItems<T>(input: Array<T>, path: Path, item: Schema<T>) {
   const values: T[] = [];
@@ -100,4 +108,42 @@ function collectObjectProperties<TShape extends ObjectShape>(shape: TShape) {
   return { properties, required };
 }
 
-export { parseArrayItems, parseObjectProperties, collectObjectProperties };
+function parseUnion<TSchemas extends UnionMembers>(
+  input: unknown,
+  path: Path,
+  schemas: TSchemas,
+) {
+  let mostRelevantFailure: ParseFailedResult | undefined;
+
+  for (const schema of schemas) {
+    const result = schema.parse(input, path);
+
+    if (result.ok) {
+      return result;
+    }
+
+    mostRelevantFailure = chooseMoreRelevantFailure(
+      mostRelevantFailure,
+      result,
+    );
+  }
+
+  return (
+    mostRelevantFailure ?? {
+      ok: false,
+      issues: [
+        {
+          path,
+          message: "Expected value to match at least one union member",
+        },
+      ],
+    }
+  );
+}
+
+export {
+  parseArrayItems,
+  parseObjectProperties,
+  collectObjectProperties,
+  parseUnion,
+};

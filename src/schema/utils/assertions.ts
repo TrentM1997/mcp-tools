@@ -14,4 +14,8 @@ function isOptionalSchema<T>(
   return "kind" in value && value.kind === "optional";
 }
 
-export { parse, isObject, isOptionalSchema };
+function isValidNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+export { parse, isObject, isOptionalSchema, isValidNumber };
