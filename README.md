@@ -57,6 +57,7 @@ Supported schema constructors:
 - `s.array(itemSchema)`
 - `s.object(shape)`
 - `s.optional(schema)`
+- `s.union(schema[])`
 
 Each schema currently supports two core operations:
 
@@ -184,7 +185,7 @@ That order keeps the protocol layer thin and lets the library derive MCP-facing 
 
 A few limitations are visible in the current implementation:
 
-- no unions, enums, nullable values, refinements, or transforms yet
+- no enums, nullable values, refinements, or transforms yet
 - no object strictness mode for rejecting extra properties
 - no custom error formatting beyond path + message
 - no test runner integration yet; the repo currently uses simple executable test files

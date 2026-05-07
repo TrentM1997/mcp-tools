@@ -37,8 +37,18 @@ type OptionalPart<TShape extends ObjectShape> = {
 type InferObjectShape<TShape extends ObjectShape> = RequiredPart<TShape> &
   OptionalPart<TShape>;
 
+type UnionMembers = readonly [Schema<any>, ...Schema<any>[]];
+
+type InferSchemaValue<TSchema> =
+  TSchema extends Schema<infer TValue> ? TValue : never;
+
+type InferUnion<TSchemas extends readonly Schema<any>[]> = InferSchemaValue<
+  TSchemas[number]
+>;
+
 export type {
   InferObjectShape,
+  InferUnion,
   ObjectShape,
   OptionalKeys,
   InferField,
@@ -47,4 +57,5 @@ export type {
   OptionalPart,
   ShapeKey,
   ParsedShape,
+  UnionMembers,
 };

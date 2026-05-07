@@ -1,10 +1,16 @@
 import type { Schema } from "../types/schema.js";
-import type { InferObjectShape, ObjectShape } from "../types/inference.js";
+import type {
+  InferObjectShape,
+  ObjectShape,
+  InferUnion,
+  UnionMembers,
+} from "../types/inference.js";
 import { defineSchema } from "../config/defineSchema.js";
 import { expectedTypeFailure } from "../utils/failures.js";
 import { isObject } from "../utils/assertions.js";
 import { finalizeArrayResult, finalizeParseResult } from "../utils/results.js";
 import { emitObjectJSON } from "../emitters/emitObjectJSON.js";
+import { parseUnion } from "../utils/walkers.js";
 
 function object<TShape extends ObjectShape>(
   shape: TShape,
@@ -37,4 +43,19 @@ function array<T>(item: Schema<T>): Schema<Array<T>> {
   });
 }
 
-export { array, object };
+function union<const TSchemas extends UnionMembers>(
+  schemas: TSchemas,
+): Schema<InferUnion<TSchemas>> {
+  return defineSchema({
+    parseAtPath(input, path) {
+      return parseUnion(input, path, schemas);
+    },
+    toJSONSchema() {
+      return {
+        anyOf: schemas.map((schema) => schema.toJSONSchema()),
+      };
+    },
+  });
+}
+
+export { array, object, union };
