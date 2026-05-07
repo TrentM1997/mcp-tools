@@ -1,5 +1,6 @@
 import type { Schema } from "../../schema/types/schema.js";
-import type { NormalizedTool, StoredTool, ToolDefinition } from "../types.js";
+import type { NormalizedTool, StoredTool } from "../types/management.js";
+import type { ToolDefinition } from "../types/definition.js";
 
 export class ToolPreparer {
   constructor() {}

@@ -1,22 +1,6 @@
-import type { Issue } from "../schema/types/result.js";
-import type { JSONSchema, Schema } from "../schema/types/schema.js";
-
-type ToolHandlerWithContext<TInput, TOutput, TContext> = (
-  input: TInput,
-  context: TContext,
-) => TOutput | Promise<TOutput>;
-
-type ToolHandler<TInput, TOutput> = (
-  input: TInput,
-) => TOutput | Promise<TOutput>;
-
-interface ToolDefinition<TInput, TOutput = unknown> {
-  name: string;
-  description: string;
-  inputSchema: Schema<TInput>;
-  handler: ToolHandler<TInput, TOutput>;
-  outputSchema?: Schema<TOutput>;
-}
+import type { Issue } from "../../schema/types/result.js";
+import type { JSONSchema, Schema } from "../../schema/types/schema.js";
+import type { ToolHandler } from "./definition.js";
 
 interface NormalizedTool<TInput = unknown, TOutput = unknown> {
   name: string;
@@ -41,8 +25,9 @@ type ToolCallResult<T = unknown> =
   | {
       ok: false;
       code: "not_found" | "invalid_input" | "handler_error" | "invalid_output";
-      message: string;
+      reason: string;
       issues?: Issue[];
+      formattedIssues?: string;
     };
 
 type ToolsRegistered = Map<string, StoredTool>;
@@ -53,13 +38,21 @@ interface ToolMetadata {
   inputJSONSchema: JSONSchema;
 }
 
+type RegistrationResult =
+  | {
+      ok: true;
+      registered: ToolMetadata;
+    }
+  | {
+      ok: false;
+      reason: string;
+    };
+
 export type {
-  ToolDefinition,
-  ToolHandler,
   NormalizedTool,
-  ToolHandlerWithContext,
   StoredTool,
-  ToolsRegistered,
   ToolCallResult,
+  RegistrationResult,
+  ToolsRegistered,
   ToolMetadata,
 };

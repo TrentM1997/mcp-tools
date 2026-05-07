@@ -1,9 +1,10 @@
 import type {
   StoredTool,
-  ToolDefinition,
   ToolMetadata,
   ToolCallResult,
-} from "../types.js";
+  RegistrationResult,
+} from "../types/management.js";
+import type { ToolDefinition } from "../types/definition.js";
 import { ToolPreparer } from "./toolPreparer.js";
 import { ToolRunner } from "./toolRunner.js";
 
@@ -17,14 +18,25 @@ export class ToolManager {
     this.tools = new Map();
   }
 
-  public register<TInput, TOutput>(tool: ToolDefinition<TInput, TOutput>) {
+  public register<TInput, TOutput>(
+    tool: ToolDefinition<TInput, TOutput>,
+  ): RegistrationResult {
     if (this.tools.has(tool.name)) {
-      throw new Error(`Tool already registered: ${tool.name}`);
+      return {
+        ok: false,
+        reason: `tool already registered with name ${tool.name}`,
+      };
     }
 
     const registered = this.preparer.prepareTool(tool);
     this.tools.set(tool.name, registered);
-    return registered;
+
+    const description = this.describe(registered);
+
+    return {
+      ok: true,
+      registered: description,
+    };
   }
 
   public list(): Array<ToolMetadata> {
@@ -44,10 +56,18 @@ export class ToolManager {
       return {
         ok: false,
         code: "not_found",
-        message: `Could not find tool named: ${name}`,
+        reason: `Could not find tool named: ${name}`,
       };
     }
     return await this.runner.execute(tool, rawInput);
+  }
+
+  private describe(tool: StoredTool): ToolMetadata {
+    return {
+      name: tool.name,
+      description: tool.description,
+      inputJSONSchema: tool.inputJSONSchema,
+    };
   }
 
   private get(name: string): StoredTool | undefined {

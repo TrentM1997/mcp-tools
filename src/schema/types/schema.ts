@@ -1,5 +1,7 @@
 import type { ParseResult, Path } from "./result.js";
 
+type ExpectedRuntimeType = "string" | "number" | "boolean" | "array" | "object";
+
 type JSONLiteral = string | number | boolean;
 
 type JSONSchema =
@@ -43,4 +45,5 @@ export type {
   InternalSchema,
   OptionalSchema,
   ObjectProperties,
+  ExpectedRuntimeType,
 };
