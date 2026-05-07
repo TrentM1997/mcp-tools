@@ -1,5 +1,4 @@
 import { describe, expect, test } from "vitest";
-import { s } from "../../../index.js";
 import {
   ObjectUnionTestSchema,
   PrimitiveUnionSchema,

@@ -59,6 +59,7 @@ export class ToolRunner {
         value,
       };
     } catch (err) {
+      console.error(err);
       return {
         ok: false,
         code: "handler_error",

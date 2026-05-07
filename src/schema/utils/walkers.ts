@@ -3,16 +3,9 @@ import type {
   ObjectShape,
   ShapeKey,
   ParsedShape,
-  InferObjectShape,
   UnionMembers,
 } from "../types/inference.js";
-import type {
-  Path,
-  Issue,
-  ParseFailedResult,
-  ParseSuccessResult,
-  ParseResult,
-} from "../types/result.js";
+import type { Path, Issue, ParseFailedResult } from "../types/result.js";
 import { isOptionalSchema } from "./assertions.js";
 import { parseOptionalSchema, parseRequiredSchema } from "./parsers.js";
 import { chooseMoreRelevantFailure } from "./helpers.js";
