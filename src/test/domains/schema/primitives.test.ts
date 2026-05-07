@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { createPathErrorMessage } from "../../schema/utils/failures.js";
+import { createPathErrorMessage } from "../../../schema/utils/failures.js";
 
 describe("createPathErrorMessage()", () => {
   test("formats a root-level issue as <root>", () => {

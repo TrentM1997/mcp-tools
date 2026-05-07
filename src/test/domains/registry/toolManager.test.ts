@@ -1,16 +1,16 @@
-import { ToolManager } from "../../index.js";
+import { ToolManager } from "../../../index.js";
 import { beforeEach, describe, expect, test } from "vitest";
 import {
   failureTestInput,
   weatherBloomington,
   weatherClinton,
-} from "../mocks/mockInputs.js";
+} from "../../mocks/inputs/mockInputs.js";
 import {
   getUser,
   weatherTool,
   invalidOutputTool,
   throwingTool,
-} from "../mocks/mockTools.js";
+} from "../../mocks/inputs/mockTools.js";
 
 describe("ToolManager", () => {
   let manager: ToolManager;
