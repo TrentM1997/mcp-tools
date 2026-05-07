@@ -1,15 +1,27 @@
-import { version } from "typescript";
+import { idText, version } from "typescript";
 
-const exampleLocation = {
+const clinton = {
   city: "Clinton",
   state: "Illinois",
   zipCode: "61727",
 };
 
-const weatherToolInput = {
-  id: "i-1235161355ui54",
+const bloomington = {
+  city: "Bloomington",
+  state: "Illinois",
+  zipCode: "61704",
+};
+
+const weatherClinton = {
+  id: crypto.randomUUID(),
   verbose: true,
-  location: exampleLocation,
+  location: clinton,
+};
+
+const weatherBloomington = {
+  id: crypto.randomUUID(),
+  verbose: false,
+  location: bloomington,
 };
 
 const failureTestInput = {
@@ -22,4 +34,4 @@ const failureTestInput = {
   },
 };
 
-export { weatherToolInput, failureTestInput };
+export { weatherClinton, failureTestInput, weatherBloomington };

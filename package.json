@@ -2,6 +2,9 @@
   "name": "mcp-tools",
   "type": "module",
   "version": "1.0.0",
+  "scripts": {
+    "test": "vitest run"
+  },
   "exports": {
     ".": {
       "types": "./src/index.ts",

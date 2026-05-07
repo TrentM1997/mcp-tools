@@ -8,14 +8,12 @@ function expectedLiteralFailure(
   expected: LiteralValue,
   input: unknown,
 ): ParseFailedResult {
-  const received = getReceivedType(input);
-
   return {
     ok: false,
     issues: [
       {
         path,
-        message: `Expected literal: ${String(expected)}, received: ${received}`,
+        message: `Expected literal: ${String(expected)}, received: ${input}`,
       },
     ],
   };

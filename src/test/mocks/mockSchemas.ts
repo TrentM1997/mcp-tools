@@ -1,4 +1,4 @@
-import { s } from "mcp-tools";
+import { s } from "../../index.js";
 
 const LocationSchema = s.object({
   city: s.string(),

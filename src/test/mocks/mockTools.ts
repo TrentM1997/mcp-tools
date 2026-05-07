@@ -1,4 +1,4 @@
-import { defineTool, s, ToolManager } from "mcp-tools";
+import { defineTool, s } from "../../index.js";
 import { WeatherToolInputSchema } from "./mockSchemas.js";
 
 const getUser = defineTool({
@@ -22,6 +22,37 @@ const weatherTool = defineTool({
   },
 });
 
-const mockRegistry = new ToolManager();
+const invalidOutputTool = defineTool({
+  name: "invalid_output_tool",
+  description: "Returns an invalid output shape on purpose",
+  inputSchema: s.object({
+    id: s.string(),
+  }),
 
-export { getUser, weatherTool, mockRegistry };
+  outputSchema: s.object({
+    id: s.string(),
+    count: s.number(),
+  }),
+  async handler(input) {
+    return {
+      id: input.id,
+      count: "not-a-number",
+    } as unknown as {
+      id: string;
+      count: number;
+    };
+  },
+});
+
+const throwingTool = defineTool({
+  name: "throwing_tool",
+  description: "Always throws during handler execution",
+  inputSchema: s.object({
+    id: s.string(),
+  }),
+  async handler() {
+    throw new Error("boom");
+  },
+});
+
+export { getUser, weatherTool, invalidOutputTool, throwingTool };
