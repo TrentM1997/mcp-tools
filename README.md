@@ -38,18 +38,10 @@ The package currently exports:
 
 - `defineTool`
 - `s`
-- `string`
-- `number`
-- `boolean`
-- `literal`
-- `optional`
-- `array`
-- `object`
-
-Most users should reach for the `s` namespace:
+- `ToolManager`
 
 ```ts
-import { defineTool, s } from "mcp-tools";
+import { defineTool, s, ToolManager } from "mcp-tools";
 ```
 
 ## Schema system
