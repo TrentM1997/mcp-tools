@@ -8,9 +8,9 @@ export class ToolPreparer {
   public prepareTool<TInput, TOutput>(
     tool: ToolDefinition<TInput, TOutput>,
   ): StoredTool {
-    const normailzedTool = this.normalizeTool(tool);
+    const normalizedTool = this.normalizeTool(tool);
 
-    return this.toStoredTool(normailzedTool);
+    return this.toStoredTool(normalizedTool);
   }
 
   private normalizeTool<TInput, TOutput>(
