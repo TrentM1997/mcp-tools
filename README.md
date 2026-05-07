@@ -1,40 +1,40 @@
 # mcp-tools
 
-An experimental TypeScript library for building validated MCP-style tools from first principles.
+An experimental TypeScript library for defining, validating, registering, and invoking MCP-style tools from first principles.
 
-The project is still early, but it has moved past pure planning. Today the strongest part of the codebase is a small schema system for tool inputs, plus the first pass at a tool definition and registry layer.
+The project is still early, but it now has a real working core:
 
-## Current status
-
-What exists today:
-
-- a typed schema API for common JSON-shaped inputs
-- runtime parsing with structured validation issues
+- a schema system for JSON-shaped inputs
+- runtime validation with structured issues
 - JSON Schema emission from the same schema definitions
-- a `defineTool(...)` helper for authoring tools
-- a registry scaffold that can register, store, and list tools
+- a typed `defineTool(...)` authoring helper
+- a `ToolManager` that registers tools and invokes them through validation
+- output validation when a tool provides an `outputSchema`
+- a Vitest suite covering the current runtime contract
 
-What does not exist yet:
+## Current focus
+
+The scope is intentionally narrow right now:
+
+- tool definition
+- input and output validation
+- tool registration and discovery
+- validated tool invocation
+- JSON Schema emission
+
+What is not part of the library yet:
 
 - JSON-RPC handling
 - MCP method routing
-- Streamable HTTP transport
+- Streamable HTTP or stdio transport
 - session lifecycle handling
-- a full tool execution pipeline that validates input before invoking handlers
-- output validation / normalization
+- auth, middleware, or orchestration layers
 
-## Goals
+The goal is to make the validated tool layer solid first, then treat protocol and server concerns as a higher layer later.
 
-This repo has two active goals:
+## Public API
 
-- understand MCP deeply by implementing the core pieces directly
-- shape those pieces into a library that feels small, readable, and practical to use
-
-The intent is still to own the internals rather than wrap an MCP SDK, but the current implementation is focused on the foundations needed before protocol work makes sense.
-
-## Public API today
-
-The package currently exports:
+The top-level package currently exports:
 
 - `defineTool`
 - `s`
@@ -44,9 +44,53 @@ The package currently exports:
 import { defineTool, s, ToolManager } from "mcp-tools";
 ```
 
+## Quick example
+
+```ts
+import { defineTool, s, ToolManager } from "mcp-tools";
+
+const getUser = defineTool({
+  name: "get_user",
+  description: "Fetch a user by ID",
+  inputSchema: s.object({
+    id: s.string(),
+    verbose: s.optional(s.boolean()),
+  }),
+  outputSchema: s.object({
+    id: s.string(),
+    name: s.string(),
+  }),
+  async handler(input) {
+    return {
+      id: input.id,
+      name: "Trent",
+    };
+  },
+});
+
+const tools = new ToolManager();
+
+const registration = tools.register(getUser);
+
+if (!registration.ok) {
+  throw new Error(registration.reason);
+}
+
+const result = await tools.call("get_user", {
+  id: "user_123",
+  verbose: true,
+});
+
+if (result.ok) {
+  console.log(result.value.name);
+} else {
+  console.error(result.code, result.reason, result.issues);
+}
+```
+
 ## Schema system
 
-The schema layer is the most complete part of the library right now.
+The schema layer is the most complete part of the library.
 
 Supported schema constructors:
 
@@ -57,42 +101,46 @@ Supported schema constructors:
 - `s.array(itemSchema)`
 - `s.object(shape)`
 - `s.optional(schema)`
-- `s.union(schema[])`
+- `s.union([schemaA, schemaB, ...])`
 
-Each schema currently supports two core operations:
+Each schema supports:
 
 - `parse(input)` for runtime validation
-- `toJSONSchema()` for MCP-facing schema emission
+- `toJSONSchema()` for schema emission
 
 ### Example
 
 ```ts
 import { s } from "mcp-tools";
 
-const GetUserInput = s.object({
-  id: s.string(),
-  verbose: s.optional(s.boolean()),
+const SearchInput = s.object({
+  query: s.string(),
+  page: s.optional(s.number()),
   tags: s.array(s.string()),
+  id: s.union([s.string(), s.number()]),
 });
 
-const parsed = GetUserInput.parse({
+const parsed = SearchInput.parse({
+  query: "mcp tools",
+  tags: ["typescript", "validation"],
   id: "user_123",
-  verbose: true,
-  tags: ["admin", "beta"],
 });
 
-const jsonSchema = GetUserInput.toJSONSchema();
+const jsonSchema = SearchInput.toJSONSchema();
 ```
 
 ### Validation behavior
 
-The current parser behavior is intentionally small and predictable:
+Current parser behavior:
 
-- primitive schemas validate by JavaScript type
+- primitive schemas validate by JavaScript runtime type
+- `s.number()` accepts only finite numbers
 - `literal(...)` validates exact equality
 - object schemas validate each declared field
 - optional object fields are skipped when absent
 - arrays validate each item and collect item-level issues
+- union schemas return the first successful branch
+- when every union branch fails, the library returns the most relevant branch failure
 - failures include a `path` and `message`
 - unknown object properties are currently ignored rather than rejected
 
@@ -115,7 +163,7 @@ type ParseFailure = {
 
 ### JSON Schema support
 
-The emitted JSON Schema is intentionally narrow right now. The current emitter can produce:
+The emitted JSON Schema currently supports:
 
 - `type: "string"`
 - `type: "number"`
@@ -124,73 +172,131 @@ The emitted JSON Schema is intentionally narrow right now. The current emitter c
 - `type: "object"`
 - `const`
 - `required`
+- `anyOf`
 
-That keeps the schema surface aligned with what the runtime validator actually understands today.
+That keeps the emitted schema aligned with the runtime validators that exist today.
 
 ## Tool definition
 
-Tool authoring has started with a minimal `defineTool(...)` helper:
+Tools are authored with `defineTool(...)`:
 
 ```ts
 import { defineTool, s } from "mcp-tools";
 
-const getUser = defineTool({
-  name: "get_user",
-  description: "Fetch a user by ID",
+const weatherTool = defineTool({
+  name: "weather_tool",
+  description: "Look up weather for a location",
   inputSchema: s.object({
     id: s.string(),
-    verbose: s.optional(s.boolean()),
+    location: s.object({
+      city: s.string(),
+      state: s.string(),
+      zipCode: s.string(),
+    }),
   }),
   async handler(input) {
-    return { id: input.id, name: "Trent" };
+    return {
+      id: input.id,
+      data: input.location,
+    };
   },
 });
 ```
 
-At the moment, `defineTool(...)` is mostly a typed authoring boundary. It does not yet execute validation automatically or wrap handler output.
+Right now, `defineTool(...)` is mostly a typed authoring boundary. It does not perform extra runtime assertions by itself, but it gives tool definitions a clean public shape and preserves useful inference for handlers and schemas.
 
-`outputSchema` is present in the types, but output validation is not wired through yet.
+## ToolManager
 
-## Registry progress
+`ToolManager` is the current registry and invocation surface.
 
-The repo now also has the first registry pass.
-
-Current registry behavior:
+Current behavior:
 
 - register a tool by name
 - reject duplicate tool names
 - derive and store `inputJSONSchema` during registration
-- list registered tools
-- look up a tool by name
+- list registered tool metadata
+- invoke tools through validated execution
+- validate tool output when `outputSchema` is present
 
-This is useful as a foundation, but it is still scaffolding:
+### Registration result
 
-- the registry is not yet part of the top-level public export surface
-- there is no invocation API yet
-- registered handlers are stored, but not run through a validation/execution pipeline
-- MCP tool-list and tool-call protocol layers have not been connected yet
+`register(...)` returns metadata on success:
 
-## Design direction
+```ts
+type RegistrationResult =
+  | {
+      ok: true;
+      registered: {
+        name: string;
+        description: string;
+        inputJSONSchema: JSONSchema;
+      };
+    }
+  | {
+      ok: false;
+      reason: string;
+    };
+```
 
-The current shape of the repo suggests a clear sequence:
+### Call result
 
-1. finish the schema and tool-definition foundations
-2. make registry-backed tool execution explicit
-3. layer MCP method handling on top
-4. add transport, with Streamable HTTP still the intended `v0` target
+`call(...)` returns a normalized result:
 
-That order keeps the protocol layer thin and lets the library derive MCP-facing behavior from first-class internal types instead of treating JSON Schema as the source of truth.
+```ts
+type ToolCallResult<T = unknown> =
+  | { ok: true; value: T }
+  | {
+      ok: false;
+      code: "not_found" | "invalid_input" | "handler_error" | "invalid_output";
+      reason: string;
+      issues?: Issue[];
+      formattedIssues?: string;
+    };
+```
+
+Validation-related failures include both:
+
+- structured `issues`
+- a human-readable `formattedIssues` string
+
+## Scripts
+
+The repo currently provides:
+
+```bash
+pnpm build
+pnpm typecheck
+pnpm test
+pnpm check
+```
+
+Where:
+
+- `build` emits `dist`
+- `typecheck` runs `tsc --noEmit`
+- `test` runs the Vitest suite
+- `check` runs typecheck and tests together
 
 ## Known gaps
 
-A few limitations are visible in the current implementation:
+The working core is in place, but the library is still intentionally incomplete.
+
+Current limitations:
 
 - no enums, nullable values, refinements, or transforms yet
 - no object strictness mode for rejecting extra properties
-- no custom error formatting beyond path + message
-- no test runner integration yet; the repo currently uses simple executable test files
-- no transport or server implementation yet
+- no discriminated union behavior yet
+- no custom error codes beyond path + message issue entries
+- no protocol, transport, or server layer
+- the package surface is still optimized for local iteration, not polished npm publishing yet
 
-## Working principle
+## Design direction
 
-Build the internals directly, but keep the user-facing API compact enough that a tool author should not need to think in raw JSON Schema or MCP protocol details for normal use.
+The current architecture suggests a clear order of work:
+
+1. finish the validated tool core
+2. improve tests, docs, and package ergonomics
+3. add more schema expressiveness where it clearly earns its keep
+4. layer MCP method handling and transport on top later instead of bloating the core
+
+The guiding principle is still the same: keep the internals honest, keep the public API small, and make the safe path feel natural for the next developer who uses it.
