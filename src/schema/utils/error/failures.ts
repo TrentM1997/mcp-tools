@@ -1,5 +1,5 @@
-import type { ParseFailedResult, Path, Issue } from "../types/result.js";
-import type { ExpectedRuntimeType } from "../types/schema.js";
+import type { ParseFailedResult, Path, Issue } from "../../types/result.js";
+import type { ExpectedRuntimeType } from "../../types/schema.js";
 
 type LiteralValue = string | number | boolean;
 

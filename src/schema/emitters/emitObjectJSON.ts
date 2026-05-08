@@ -1,6 +1,6 @@
 import type { JSONSchema } from "../types/schema.js";
 import type { ObjectShape } from "../types/inference.js";
-import { collectObjectProperties } from "../utils/walkers.js";
+import { collectObjectProperties } from "../utils/composites/walkers.js";
 
 export function emitObjectJSON<TShape extends ObjectShape>(
   shape: TShape,

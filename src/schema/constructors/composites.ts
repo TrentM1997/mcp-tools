@@ -1,21 +1,32 @@
-import type { Schema } from "../types/schema.js";
 import type {
-  InferObjectShape,
+  DiscriminatedUnionMembers,
+  ObjectSchema,
+  Schema,
+} from "../types/schema.js";
+import type {
   ObjectShape,
   InferUnion,
   UnionMembers,
+  InferDiscriminatedUnion,
 } from "../types/inference.js";
 import { defineSchema } from "../config/defineSchema.js";
-import { expectedTypeFailure } from "../utils/failures.js";
-import { isObject } from "../utils/assertions.js";
-import { finalizeArrayResult, finalizeParseResult } from "../utils/results.js";
+import { expectedTypeFailure } from "../utils/error/failures.js";
+import { isObject } from "../utils/validation/assertions.js";
+import {
+  finalizeArrayResult,
+  finalizeParseResult,
+} from "../utils/composites/results.js";
 import { emitObjectJSON } from "../emitters/emitObjectJSON.js";
-import { parseUnion } from "../utils/walkers.js";
+import {
+  parseDiscriminatedUnion,
+  parseUnion,
+} from "../utils/composites/walkers.js";
+import { buildDiscriminatorMap } from "../utils/composites/builders.js";
 
 function object<TShape extends ObjectShape>(
   shape: TShape,
-): Schema<InferObjectShape<TShape>> {
-  return defineSchema({
+): ObjectSchema<TShape> {
+  const schema = defineSchema({
     parseAtPath(input, path) {
       if (!isObject(input)) {
         return expectedTypeFailure(path, "object", input);
@@ -26,6 +37,12 @@ function object<TShape extends ObjectShape>(
       return emitObjectJSON(shape);
     },
   });
+
+  return {
+    ...schema,
+    kind: "object",
+    shape,
+  };
 }
 
 function array<T>(item: Schema<T>): Schema<Array<T>> {
@@ -58,4 +75,22 @@ function union<const TSchemas extends UnionMembers>(
   });
 }
 
-export { array, object, union };
+function discriminatedUnion<
+  const TKey extends string,
+  const TSchemas extends DiscriminatedUnionMembers<TKey>,
+>(key: TKey, schemas: TSchemas): Schema<InferDiscriminatedUnion<TSchemas>> {
+  const branches = buildDiscriminatorMap(key, schemas);
+
+  return defineSchema({
+    parseAtPath(input, path) {
+      return parseDiscriminatedUnion(input, path, key, branches);
+    },
+    toJSONSchema() {
+      return {
+        oneOf: schemas.map((schema) => schema.toJSONSchema()),
+      };
+    },
+  });
+}
+
+export { array, object, union, discriminatedUnion };

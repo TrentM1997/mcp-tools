@@ -1,4 +1,9 @@
-import type { OptionalSchema, Schema } from "./schema.js";
+import type {
+  DiscriminatedMember,
+  ObjectSchema,
+  OptionalSchema,
+  Schema,
+} from "./schema.js";
 
 type SchemaEntry = Schema<any> | OptionalSchema<any>;
 
@@ -46,9 +51,17 @@ type InferUnion<TSchemas extends readonly Schema<any>[]> = InferSchemaValue<
   TSchemas[number]
 >;
 
+type InferDiscriminatedUnion<
+  TSchemas extends readonly DiscriminatedMember<any>[],
+> =
+  TSchemas[number] extends ObjectSchema<infer TShape>
+    ? InferObjectShape<TShape>
+    : never;
+
 export type {
   InferObjectShape,
   InferUnion,
+  InferDiscriminatedUnion,
   ObjectShape,
   OptionalKeys,
   InferField,

@@ -1,10 +1,9 @@
-import type { Schema, OptionalSchema } from "../types/schema.js";
+import type { Schema, OptionalSchema } from "../../types/schema.js";
 
 function parse<T>(schema: Schema<T>, input: unknown) {
   return schema.parse(input);
 }
-
-function isObject(input: unknown) {
+function isObject(input: unknown): input is Record<string, unknown> {
   return input !== null && !Array.isArray(input) && typeof input === "object";
 }
 

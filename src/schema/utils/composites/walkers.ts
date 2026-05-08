@@ -1,14 +1,26 @@
-import type { ObjectProperties, Schema } from "../types/schema.js";
+import type {
+  DiscriminatedUnionMembers,
+  JSONLiteral,
+  ObjectProperties,
+  Schema,
+} from "../../types/schema.js";
 import type {
   ObjectShape,
   ShapeKey,
   ParsedShape,
   UnionMembers,
-} from "../types/inference.js";
-import type { Path, Issue, ParseFailedResult } from "../types/result.js";
-import { isOptionalSchema } from "./assertions.js";
+  InferDiscriminatedUnion,
+} from "../../types/inference.js";
+import type {
+  Path,
+  Issue,
+  ParseFailedResult,
+  ParseResult,
+} from "../../types/result.js";
+import { isObject, isOptionalSchema } from "../validation/assertions.js";
 import { parseOptionalSchema, parseRequiredSchema } from "./parsers.js";
 import { chooseMoreRelevantFailure } from "./helpers.js";
+import { expectedTypeFailure } from "../error/failures.js";
 
 function parseArrayItems<T>(input: Array<T>, path: Path, item: Schema<T>) {
   const values: T[] = [];
@@ -134,9 +146,43 @@ function parseUnion<TSchemas extends UnionMembers>(
   );
 }
 
+function parseDiscriminatedUnion<
+  TKey extends string,
+  TSchemas extends DiscriminatedUnionMembers<TKey>,
+>(
+  input: unknown,
+  path: Path,
+  key: TKey,
+  branches: Map<JSONLiteral, TSchemas[number]>,
+): ParseResult<InferDiscriminatedUnion<TSchemas>> {
+  if (!isObject(input)) {
+    return expectedTypeFailure(path, "object", input);
+  }
+
+  const discriminatorValue = input[key];
+  const branch = branches.get(discriminatorValue as JSONLiteral);
+
+  if (!branch) {
+    return {
+      ok: false,
+      issues: [
+        {
+          path: [...path, key],
+          message: `Expected discriminator "${key}" to match one of: ${Array.from(branches.keys()).join(", ")}, received: ${String(discriminatorValue)}`,
+        },
+      ],
+    } satisfies ParseFailedResult;
+  }
+
+  return branch.parse(input, path) as ParseResult<
+    InferDiscriminatedUnion<TSchemas>
+  >;
+}
+
 export {
   parseArrayItems,
   parseObjectProperties,
   collectObjectProperties,
   parseUnion,
+  parseDiscriminatedUnion,
 };

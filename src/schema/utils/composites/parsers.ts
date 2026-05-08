@@ -1,6 +1,10 @@
-import type { OptionalSchema, Schema } from "../types/schema.js";
-import type { ObjectShape, ShapeKey, ParsedShape } from "../types/inference.js";
-import type { Path, Issue } from "../types/result.js";
+import type { OptionalSchema, Schema } from "../../types/schema.js";
+import type {
+  ObjectShape,
+  ShapeKey,
+  ParsedShape,
+} from "../../types/inference.js";
+import type { Path, Issue } from "../../types/result.js";
 import { assignValidatedField } from "./helpers.js";
 
 function parseRequiredSchema<TShape extends ObjectShape>(

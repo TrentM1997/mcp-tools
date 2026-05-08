@@ -1,10 +1,10 @@
-import type { Schema } from "../types/schema.js";
+import type { LiteralSchema, Schema } from "../types/schema.js";
 import {
   expectedLiteralFailure,
   expectedTypeFailure,
-} from "../utils/failures.js";
+} from "../utils/error/failures.js";
 import { defineSchema } from "../config/defineSchema.js";
-import { isValidNumber } from "../utils/assertions.js";
+import { isValidNumber } from "../utils/validation/assertions.js";
 
 function string(): Schema<string> {
   return defineSchema({
@@ -53,8 +53,10 @@ function number(): Schema<number> {
   });
 }
 
-function literal<T extends string | number | boolean>(value: T): Schema<T> {
-  return defineSchema({
+function literal<T extends string | number | boolean>(
+  value: T,
+): LiteralSchema<T> {
+  const schema = defineSchema({
     parseAtPath(input, path) {
       if (input !== value) {
         return expectedLiteralFailure(path, `${String(value)}`, input);
@@ -66,6 +68,12 @@ function literal<T extends string | number | boolean>(value: T): Schema<T> {
       return { const: value };
     },
   });
+
+  return {
+    ...schema,
+    kind: "literal",
+    value,
+  };
 }
 
 export { string, number, boolean, literal };

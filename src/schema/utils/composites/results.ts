@@ -1,6 +1,6 @@
-import type { ParseResult, Path } from "../types/result.js";
-import type { Schema } from "../types/schema.js";
-import type { ObjectShape, InferObjectShape } from "../types/inference.js";
+import type { ParseResult, Path } from "../../types/result.js";
+import type { Schema } from "../../types/schema.js";
+import type { ObjectShape, InferObjectShape } from "../../types/inference.js";
 import { parseArrayItems, parseObjectProperties } from "./walkers.js";
 
 function finalizeParseResult<TShape extends ObjectShape>(

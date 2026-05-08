@@ -1,4 +1,4 @@
-import { createPathErrorMessage } from "../../schema/utils/failures.js";
+import { createPathErrorMessage } from "../../schema/utils/error/failures.js";
 import type { StoredTool, ToolCallResult } from "../types/management.js";
 
 export class ToolRunner {

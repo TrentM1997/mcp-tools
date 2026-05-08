@@ -5,7 +5,12 @@ import {
   boolean,
   literal,
 } from "./schema/constructors/primitives.js";
-import { array, object, union } from "./schema/constructors/composites.js";
+import {
+  array,
+  object,
+  union,
+  discriminatedUnion,
+} from "./schema/constructors/composites.js";
 import { optional } from "./schema/constructors/modifiers.js";
 import { ToolManager } from "./registry/index.js";
 
@@ -18,6 +23,7 @@ const s = {
   array,
   object,
   union,
+  discriminatedUnion,
 };
 
 export { defineTool, s, ToolManager };

@@ -1,5 +1,9 @@
-import type { ObjectShape, ParsedShape, ShapeKey } from "../types/inference.js";
-import type { ParseFailedResult } from "../types/result.js";
+import type {
+  ObjectShape,
+  ParsedShape,
+  ShapeKey,
+} from "../../types/inference.js";
+import type { ParseFailedResult } from "../../types/result.js";
 
 export function assignValidatedField<TShape extends ObjectShape>(
   values: Partial<ParsedShape<TShape>>,
