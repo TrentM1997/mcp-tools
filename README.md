@@ -102,6 +102,7 @@ Supported schema constructors:
 - `s.object(shape)`
 - `s.optional(schema)`
 - `s.union([schemaA, schemaB, ...])`
+- `s.discriminatedUnion(key, [schemaA, schemaB, ...])`
 
 Each schema supports:
 
@@ -129,6 +130,31 @@ const parsed = SearchInput.parse({
 const jsonSchema = SearchInput.toJSONSchema();
 ```
 
+### Discriminated union example
+
+```ts
+import { s } from "mcp-tools";
+
+const EntitySchema = s.discriminatedUnion("type", [
+  s.object({
+    type: s.literal("user"),
+    id: s.string(),
+    active: s.boolean(),
+  }),
+  s.object({
+    type: s.literal("org"),
+    slug: s.string(),
+    seats: s.number(),
+  }),
+]);
+
+const parsed = EntitySchema.parse({
+  type: "user",
+  id: "user_123",
+  active: true,
+});
+```
+
 ### Validation behavior
 
 Current parser behavior:
@@ -141,6 +167,8 @@ Current parser behavior:
 - arrays validate each item and collect item-level issues
 - union schemas return the first successful branch
 - when every union branch fails, the library returns the most relevant branch failure
+- discriminated unions dispatch to a branch by discriminator key instead of parsing every branch
+- unknown discriminator values return a discriminator-specific failure at the discriminator path
 - failures include a `path` and `message`
 - unknown object properties are currently ignored rather than rejected
 
@@ -173,7 +201,9 @@ The emitted JSON Schema currently supports:
 - `const`
 - `required`
 - `anyOf`
+- `oneOf`
 
+Plain `union(...)` emits `anyOf`, while `discriminatedUnion(...)` emits `oneOf`.
 That keeps the emitted schema aligned with the runtime validators that exist today.
 
 ## Tool definition
@@ -285,7 +315,6 @@ Current limitations:
 
 - no enums, nullable values, refinements, or transforms yet
 - no object strictness mode for rejecting extra properties
-- no discriminated union behavior yet
 - no custom error codes beyond path + message issue entries
 - no protocol, transport, or server layer
 - the package surface is still optimized for local iteration, not polished npm publishing yet
