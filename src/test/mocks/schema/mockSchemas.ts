@@ -1,4 +1,4 @@
-import { s } from "mcp-tools";
+import { s } from "../../../index.js";
 
 const LocationSchema = s.object({
   city: s.string(),
@@ -26,4 +26,22 @@ const ObjectUnionTestSchema = s.union([
 
 const PrimitiveUnionSchema = s.union([s.string(), s.number(), s.literal(true)]);
 
-export { WeatherToolInputSchema, ObjectUnionTestSchema, PrimitiveUnionSchema };
+const DiscriminatedEntitySchema = s.discriminatedUnion("type", [
+  s.object({
+    type: s.literal("user"),
+    id: s.string(),
+    active: s.boolean(),
+  }),
+  s.object({
+    type: s.literal("org"),
+    slug: s.string(),
+    seats: s.number(),
+  }),
+]);
+
+export {
+  WeatherToolInputSchema,
+  ObjectUnionTestSchema,
+  PrimitiveUnionSchema,
+  DiscriminatedEntitySchema,
+};

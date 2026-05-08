@@ -9,12 +9,18 @@ export function buildDiscriminatorMap<
 >(key: TKey, schemas: TSchemas): Map<JSONLiteral, TSchemas[number]> {
   const branches = new Map<JSONLiteral, TSchemas[number]>();
 
-  for (const schema of schemas) {
+  for (const [index, schema] of schemas.entries()) {
     const discriminator = schema.shape[key];
+
+    if (!discriminator || discriminator.kind !== "literal") {
+      throw new Error(
+        `Discriminated union member at index ${index} must define a literal discriminator for "${key}"`,
+      );
+    }
 
     if (branches.has(discriminator.value)) {
       throw new Error(
-        `Duplicate discriminated union member for ${key}=${String(discriminator.value)}`,
+        `Duplicate discriminated union member for: ${key}=${discriminator.value}`,
       );
     }
 
