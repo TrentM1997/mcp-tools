@@ -6,6 +6,9 @@ describe("createPathErrorMessage()", () => {
     const message = createPathErrorMessage([
       {
         path: [],
+        code: "invalid_type",
+        expected: "string",
+        received: "number",
         message: "Expected type: string, received type: number",
       },
     ]);
@@ -19,6 +22,9 @@ describe("createPathErrorMessage()", () => {
     const message = createPathErrorMessage([
       {
         path: ["items", 2, "price"],
+        code: "invalid_type",
+        expected: "number",
+        received: "string",
         message: "Expected type: number, received type: string",
       },
     ]);

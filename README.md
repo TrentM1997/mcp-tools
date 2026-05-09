@@ -99,7 +99,7 @@ Supported schema constructors:
 - `s.boolean()`
 - `s.literal(value)`
 - `s.array(itemSchema)`
-- `s.object(shape)`
+- `s.object(shape, config?)`
 - `s.optional(schema)`
 - `s.union([schemaA, schemaB, ...])`
 - `s.discriminatedUnion(key, [schemaA, schemaB, ...])`
@@ -129,6 +129,27 @@ const parsed = SearchInput.parse({
 
 const jsonSchema = SearchInput.toJSONSchema();
 ```
+
+### Object policy example
+
+```ts
+import { s } from "mcp-tools";
+
+const StrictInput = s.object({
+  id: s.string(),
+  verbose: s.optional(s.boolean()),
+});
+
+const LooseInput = s.object(
+  {
+    id: s.string(),
+  },
+  { unknownKeys: "ignore" },
+);
+```
+
+`object(...)` defaults to `unknownKeys: "strict"`, which rejects undeclared input keys.
+Use `{ unknownKeys: "ignore" }` when you want extra keys to be accepted and omitted from the parsed output.
 
 ### Discriminated union example
 
@@ -164,13 +185,14 @@ Current parser behavior:
 - `literal(...)` validates exact equality
 - object schemas validate each declared field
 - optional object fields are skipped when absent
+- `object(...)` defaults to `unknownKeys: "strict"` and rejects undeclared keys
+- `object(..., { unknownKeys: "ignore" })` accepts undeclared keys and omits them from the parsed value
 - arrays validate each item and collect item-level issues
 - union schemas return the first successful branch
 - when every union branch fails, the library returns the most relevant branch failure
 - discriminated unions dispatch to a branch by discriminator key instead of parsing every branch
 - unknown discriminator values return a discriminator-specific failure at the discriminator path
 - failures include a `path` and `message`
-- unknown object properties are currently ignored rather than rejected
 
 Example result shapes:
 
@@ -182,10 +204,28 @@ type ParseSuccess<T> = {
 
 type ParseFailure = {
   ok: false;
-  issues: Array<{
-    path: Array<string | number>;
-    message: string;
-  }>;
+  issues: Array<
+    | {
+        path: Array<string | number>;
+        code: "invalid_type";
+        expected: "string" | "number" | "boolean" | "array" | "object";
+        received: string;
+        message: string;
+      }
+    | {
+        path: Array<string | number>;
+        code: "invalid_literal";
+        expected: string | number | boolean;
+        received: unknown;
+        message: string;
+      }
+    | {
+        path: Array<string | number>;
+        code: "unknown_key";
+        key: string;
+        message: string;
+      }
+  >;
 };
 ```
 
@@ -200,10 +240,12 @@ The emitted JSON Schema currently supports:
 - `type: "object"`
 - `const`
 - `required`
+- `additionalProperties`
 - `anyOf`
 - `oneOf`
 
 Plain `union(...)` emits `anyOf`, while `discriminatedUnion(...)` emits `oneOf`.
+For objects, `unknownKeys: "strict"` emits `additionalProperties: false`, while `unknownKeys: "ignore"` emits `additionalProperties: true`.
 That keeps the emitted schema aligned with the runtime validators that exist today.
 
 ## Tool definition
@@ -314,8 +356,7 @@ The working core is in place, but the library is still intentionally incomplete.
 Current limitations:
 
 - no enums, nullable values, refinements, or transforms yet
-- no object strictness mode for rejecting extra properties
-- no custom error codes beyond path + message issue entries
+- the structured issue taxonomy is still small and evolving
 - no protocol, transport, or server layer
 - the package surface is still optimized for local iteration, not polished npm publishing yet
 

@@ -11,6 +11,9 @@ describe("literal()", () => {
       issues: [
         {
           path: [],
+          code: "invalid_literal",
+          expected: "TypeScript",
+          received: "Java",
           message: "Expected literal: TypeScript, received: Java",
         },
       ],

@@ -41,6 +41,9 @@ describe("discriminatedUnion()", () => {
       issues: [
         {
           path: [],
+          code: "invalid_type",
+          expected: "object",
+          received: "string",
           message: "Expected type: object, received type: string",
         },
       ],
@@ -58,6 +61,8 @@ describe("discriminatedUnion()", () => {
       issues: [
         {
           path: ["type"],
+          code: "unknown_key",
+          key: "type",
           message:
             'Expected discriminator "type" to match one of: user, org, received: team',
         },

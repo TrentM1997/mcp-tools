@@ -33,6 +33,9 @@ describe("union()", () => {
       issues: [
         {
           path: ["count"],
+          code: "invalid_type",
+          expected: "number",
+          received: "string",
           message: "Expected type: number, received type: string",
         },
       ],

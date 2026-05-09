@@ -96,30 +96,3 @@ function discriminatedUnion<
 }
 
 export { array, object, union, discriminatedUnion };
-
-// **** experimental ********
-
-//export function objectV2<TShape extends ObjectShape>(
-//  shape: TShape,
-//  config: ObjectSchemaConfig = { unknownKeys: "strict" },
-//): ObjectSchema<TShape> {
-//  const schema = defineSchema({
-//    parseAtPath(input, path) {
-//      if (!isObject(input)) {
-//        return expectedTypeFailure(path, "object", input);
-//      }
-//      return finalizeParseResultV2(input, shape, path, config);
-//    },
-//    toJSONSchema() {
-//      return emitObjectJSON(shape, config);
-//    },
-//  });
-//
-//  return {
-//    ...schema,
-//    kind: "object",
-//    shape,
-//  };
-//}
-
-// **** experimental ********

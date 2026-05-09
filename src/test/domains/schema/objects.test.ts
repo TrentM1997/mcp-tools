@@ -59,6 +59,90 @@ describe("object()", () => {
       issues: [
         {
           path: ["extra"],
+          code: "unknown_key",
+          key: "extra",
+          message: "Unknown key: extra",
+        },
+      ],
+    });
+  });
+
+  test("allows optional declared fields to be omitted in strict objects", () => {
+    const schema = s.object(
+      {
+        id: s.string(),
+        verbose: s.optional(s.boolean()),
+      },
+      { unknownKeys: "strict" },
+    );
+
+    expect(
+      schema.parse({
+        id: "user_123",
+      }),
+    ).toEqual({
+      ok: true,
+      value: {
+        id: "user_123",
+      },
+    });
+  });
+
+  test("returns nested unknown-key issues for strict nested objects", () => {
+    const schema = s.object({
+      id: s.string(),
+      location: s.object({
+        city: s.string(),
+        state: s.string(),
+      }),
+    });
+
+    expect(
+      schema.parse({
+        id: "user_123",
+        location: {
+          city: "Bloomington",
+          state: "Illinois",
+          country: "USA",
+        },
+      }),
+    ).toEqual({
+      ok: false,
+      issues: [
+        {
+          path: ["location", "country"],
+          code: "unknown_key",
+          key: "country",
+          message: "Unknown key: country",
+        },
+      ],
+    });
+  });
+
+  test("returns both strict unknown-key failures and normal field validation issues", () => {
+    const schema = s.object({
+      id: s.string(),
+    });
+
+    expect(
+      schema.parse({
+        id: 123,
+        extra: true,
+      }),
+    ).toEqual({
+      ok: false,
+      issues: [
+        {
+          path: ["id"],
+          code: "invalid_type",
+          expected: "string",
+          received: "number",
+          message: "Expected type: string, received type: number",
+        },
+        {
+          path: ["extra"],
+          code: "unknown_key",
+          key: "extra",
           message: "Unknown key: extra",
         },
       ],

@@ -13,6 +13,9 @@ function expectedLiteralFailure(
     issues: [
       {
         path,
+        code: "invalid_literal",
+        expected: expected,
+        received: input,
         message: `Expected literal: ${String(expected)}, received: ${input}`,
       },
     ],
@@ -31,6 +34,9 @@ function expectedTypeFailure(
     issues: [
       {
         path,
+        code: "invalid_type",
+        expected: expectedType,
+        received: received,
         message: `Expected type: ${expectedType}, received type: ${received}`,
       },
     ],

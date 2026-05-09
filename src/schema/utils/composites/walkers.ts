@@ -137,6 +137,8 @@ function parseStrictObjectSchema<TShape extends ObjectShape>(
     if (!shapeKeySet.has(key)) {
       issues.push({
         path: [...path, key],
+        code: "unknown_key",
+        key: key,
         message: `Unknown key: ${key}`,
       });
     }
@@ -168,9 +170,17 @@ function parseUnion<TSchemas extends UnionMembers>(
   path: Path,
   schemas: TSchemas,
 ) {
-  let mostRelevantFailure: ParseFailedResult | undefined;
+  const [first, ...rest] = schemas;
 
-  for (const schema of schemas) {
+  const firstResult = first.parse(input, path);
+
+  if (firstResult.ok) {
+    return firstResult;
+  }
+
+  let mostRelevantFailure = firstResult;
+
+  for (const schema of rest) {
     const result = schema.parse(input, path);
 
     if (result.ok) {
@@ -183,17 +193,7 @@ function parseUnion<TSchemas extends UnionMembers>(
     );
   }
 
-  return (
-    mostRelevantFailure ?? {
-      ok: false,
-      issues: [
-        {
-          path,
-          message: "Expected value to match at least one union member",
-        },
-      ],
-    }
-  );
+  return mostRelevantFailure;
 }
 
 function parseDiscriminatedUnion<
@@ -218,6 +218,8 @@ function parseDiscriminatedUnion<
       issues: [
         {
           path: [...path, key],
+          code: "unknown_key",
+          key: key,
           message: `Expected discriminator "${key}" to match one of: ${Array.from(branches.keys()).join(", ")}, received: ${String(discriminatorValue)}`,
         },
       ],
