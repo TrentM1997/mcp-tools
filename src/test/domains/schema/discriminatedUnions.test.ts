@@ -76,6 +76,7 @@ describe("discriminatedUnion()", () => {
             active: { type: "boolean" },
           },
           required: ["type", "id", "active"],
+          additionalProperties: false,
         },
         {
           type: "object",
@@ -85,6 +86,7 @@ describe("discriminatedUnion()", () => {
             seats: { type: "number" },
           },
           required: ["type", "slug", "seats"],
+          additionalProperties: false,
         },
       ],
     });

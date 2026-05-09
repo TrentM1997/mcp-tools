@@ -11,6 +11,10 @@ import {
   invalidOutputTool,
   throwingTool,
 } from "../../mocks/inputs/mockTools.js";
+import {
+  weatherToolFailedCall,
+  weatherToolNotOkay,
+} from "../../mocks/outputs/toolCallResults.js";
 
 describe("ToolManager", () => {
   let manager: ToolManager;
@@ -98,31 +102,10 @@ describe("ToolManager", () => {
 
       const result = await manager.call(weatherTool.name, failureTestInput);
 
-      expect(result).toMatchObject({
-        ok: false,
-        code: "invalid_input",
-        reason: "Tool input failed validation",
-        formattedIssues:
-          "location.city: Expected type: string, received type: number; " +
-          "location.state: Expected type: string, received type: undefined; " +
-          "location.zipCode: Expected type: string, received type: number",
-      });
+      expect(result).toMatchObject(weatherToolFailedCall);
 
       if (!result.ok && result.code === "invalid_input") {
-        expect(result.issues).toEqual([
-          {
-            path: ["location", "city"],
-            message: "Expected type: string, received type: number",
-          },
-          {
-            path: ["location", "state"],
-            message: "Expected type: string, received type: undefined",
-          },
-          {
-            path: ["location", "zipCode"],
-            message: "Expected type: string, received type: number",
-          },
-        ]);
+        expect(result.issues).toEqual(weatherToolNotOkay);
       }
     });
 

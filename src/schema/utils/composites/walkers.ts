@@ -95,6 +95,56 @@ function parseInferredObjectSchema<TShape extends ObjectShape>(
   return { values, issues };
 }
 
+function parseStrictObjectSchema<TShape extends ObjectShape>(
+  shape: TShape,
+  input: Record<string, unknown>,
+  path: Path,
+) {
+  const keys = Object.keys(shape) as ShapeKey<TShape>[];
+  const values: Partial<ParsedShape<TShape>> = {};
+  const issues: Issue[] = [];
+
+  for (const key of keys) {
+    const propertySchema = shape[key];
+    const propertyValue = input[key as string];
+
+    if (isOptionalSchema(propertySchema)) {
+      if (Object.hasOwn(input, key)) {
+        parseOptionalSchema(
+          propertySchema,
+          propertyValue,
+          path,
+          key,
+          values,
+          issues,
+        );
+      }
+    } else {
+      parseRequiredSchema(
+        propertySchema,
+        propertyValue,
+        path,
+        key,
+        values,
+        issues,
+      );
+    }
+  }
+
+  const shapeKeySet = new Set<string>(keys as string[]);
+
+  for (const key of Object.keys(input)) {
+    if (!shapeKeySet.has(key)) {
+      issues.push({
+        path: [...path, key],
+        message: `Unknown key: ${key}`,
+      });
+    }
+  }
+
+  return { values, issues };
+}
+
 function collectObjectProperties<TShape extends ObjectShape>(shape: TShape) {
   const properties: ObjectProperties = {};
   const required: string[] = [];
@@ -185,4 +235,5 @@ export {
   collectObjectProperties,
   parseUnion,
   parseDiscriminatedUnion,
+  parseStrictObjectSchema,
 };

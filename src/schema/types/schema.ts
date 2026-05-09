@@ -14,6 +14,7 @@ type JSONSchema =
       type: "object";
       properties: Record<string, JSONSchema>;
       required: string[];
+      additionalProperties: boolean;
     }
   | { const: JSONLiteral }
   | { anyOf: JSONSchema[] }
