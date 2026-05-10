@@ -3,6 +3,8 @@ import type {
   ToolMetadata,
   ToolCallResult,
   RegistrationResult,
+  ToolCallOptions,
+  ToolCallResponse,
 } from "../types/management.js";
 import type { ToolDefinition } from "../types/definition.js";
 import { ToolPreparer } from "./toolPreparer.js";
@@ -50,16 +52,30 @@ export class ToolManager {
   public async call(
     name: string,
     rawInput: unknown,
-  ): Promise<ToolCallResult<unknown>> {
+    options?: ToolCallOptions,
+  ): Promise<ToolCallResponse<unknown>> {
+    const callId = options?.callId ?? crypto.randomUUID();
+
     const tool = this.get(name);
     if (!tool) {
       return {
-        ok: false,
-        code: "not_found",
-        reason: `Could not find tool named: ${name}`,
+        callId: callId,
+        requestedToolName: "No tool found",
+        result: {
+          ok: false,
+          code: "not_found",
+          reason: `Could not find tool named: ${name}`,
+        },
       };
     }
-    return await this.runner.execute(tool, rawInput);
+
+    const result = await this.runner.execute(tool, rawInput);
+
+    return {
+      callId: callId,
+      requestedToolName: tool.name,
+      result,
+    };
   }
 
   private describe(tool: StoredTool): ToolMetadata {

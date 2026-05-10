@@ -20,6 +20,16 @@ interface StoredTool {
   outputSchema?: Schema<unknown>;
 }
 
+interface ToolCallOptions {
+  callId?: string;
+}
+
+type ToolCallResponse<T> = {
+  callId: string;
+  requestedToolName: string;
+  result: ToolCallResult<T>;
+};
+
 type ToolCallResult<T = unknown> =
   | { ok: true; value: T }
   | {
@@ -51,8 +61,10 @@ type RegistrationResult =
 export type {
   NormalizedTool,
   StoredTool,
+  ToolCallOptions,
   ToolCallResult,
   RegistrationResult,
   ToolsRegistered,
   ToolMetadata,
+  ToolCallResponse,
 };

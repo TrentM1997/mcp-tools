@@ -74,69 +74,114 @@ describe("ToolManager", () => {
 
   describe("call()", () => {
     test("Returns ok: true and the handler result when a registered tool succeeds", async () => {
+      const callId = "call-success";
+
       manager.register(weatherTool);
 
-      const result = await manager.call(weatherTool.name, weatherBloomington);
+      const result = await manager.call(weatherTool.name, weatherBloomington, {
+        callId,
+      });
 
       expect(result).toEqual({
-        ok: true,
-        value: {
-          id: weatherBloomington.id,
-          data: weatherBloomington.location,
+        callId,
+        requestedToolName: weatherTool.name,
+        result: {
+          ok: true,
+          value: {
+            id: weatherBloomington.id,
+            data: weatherBloomington.location,
+          },
         },
       });
     });
 
     test("Returns not_found when a tool has not been registered", async () => {
-      const result = await manager.call("missing_tool", weatherClinton);
+      const callId = "call-not-found";
+
+      const result = await manager.call("missing_tool", weatherClinton, {
+        callId,
+      });
 
       expect(result).toEqual({
-        ok: false,
-        code: "not_found",
-        reason: "Could not find tool named: missing_tool",
+        callId,
+        requestedToolName: "No tool found",
+        result: {
+          ok: false,
+          code: "not_found",
+          reason: "Could not find tool named: missing_tool",
+        },
       });
     });
 
     test("Returns invalid_input with structured issues and formatted issue text", async () => {
+      const callId = "call-invalid-input";
+
       manager.register(weatherTool);
 
-      const result = await manager.call(weatherTool.name, failureTestInput);
+      const result = await manager.call(weatherTool.name, failureTestInput, {
+        callId,
+      });
 
-      expect(result).toMatchObject(weatherToolFailedCall);
+      expect(result).toMatchObject({
+        callId,
+        requestedToolName: weatherTool.name,
+        result: weatherToolFailedCall,
+      });
 
-      if (!result.ok && result.code === "invalid_input") {
-        expect(result.issues).toEqual(weatherToolNotOkay);
+      if (!result.result.ok && result.result.code === "invalid_input") {
+        expect(result.result.issues).toEqual(weatherToolNotOkay);
       }
     });
 
     test("Returns handler_error when a tool handler throws during execution", async () => {
+      const callId = "call-handler-error";
+
       manager.register(throwingTool);
 
-      const result = await manager.call(throwingTool.name, { id: "tool-123" });
+      const result = await manager.call(
+        throwingTool.name,
+        { id: "tool-123" },
+        { callId },
+      );
 
       expect(result).toEqual({
-        ok: false,
-        code: "handler_error",
-        reason: "Tool Handler threw during execution",
+        callId,
+        requestedToolName: throwingTool.name,
+        result: {
+          ok: false,
+          code: "handler_error",
+          reason: "Tool Handler threw during execution",
+        },
       });
     });
 
     test("Returns invalid_output when a handler returns a value that fails output validation", async () => {
+      const callId = "call-invalid-output";
+
       manager.register(invalidOutputTool);
 
-      const result = await manager.call(invalidOutputTool.name, {
-        id: "tool-123",
-      });
+      const result = await manager.call(
+        invalidOutputTool.name,
+        {
+          id: "tool-123",
+        },
+        { callId },
+      );
 
       expect(result).toMatchObject({
-        ok: false,
-        code: "invalid_output",
-        reason: "Tool output failed validation",
-        formattedIssues: "count: Expected type: number, received type: string",
+        callId,
+        requestedToolName: "invalid_output_tool",
+        result: {
+          ok: false,
+          code: "invalid_output",
+          reason: "Tool output failed validation",
+          formattedIssues:
+            "count: Expected type: number, received type: string",
+        },
       });
 
-      if (!result.ok && result.code === "invalid_output") {
-        expect(result.issues).toEqual([
+      if (!result.result.ok && result.result.code === "invalid_output") {
+        expect(result.result.issues).toEqual([
           {
             path: ["count"],
             code: "invalid_type",

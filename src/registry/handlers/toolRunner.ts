@@ -44,7 +44,10 @@ export class ToolRunner {
       };
     }
 
-    return validatedOutput;
+    return {
+      ok: true,
+      value: validatedOutput.value,
+    };
   }
 
   private async invokeTool(

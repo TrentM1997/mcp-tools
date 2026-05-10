@@ -14,7 +14,7 @@ import {
   enumeration,
 } from "./schema/constructors/composites.js";
 import { optional } from "./schema/constructors/modifiers.js";
-import { ToolManager } from "./registry/index.js";
+import { ToolManager } from "./registry/handlers/toolManager.js";
 
 const s = {
   string,
