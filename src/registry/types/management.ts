@@ -23,10 +23,10 @@ interface StoredTool {
 interface ToolCallOptions {
   callId?: string;
 }
-
 type ToolCallResponse<T> = {
   callId: string;
   requestedToolName: string;
+  resolvedToolName?: string;
   result: ToolCallResult<T>;
 };
 

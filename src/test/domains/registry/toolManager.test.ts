@@ -78,13 +78,16 @@ describe("ToolManager", () => {
 
       manager.register(weatherTool);
 
+      const requestedName = "weather_tool";
+
       const result = await manager.call(weatherTool.name, weatherBloomington, {
         callId,
       });
 
       expect(result).toEqual({
         callId,
-        requestedToolName: weatherTool.name,
+        requestedToolName: requestedName,
+        resolvedToolName: weatherTool.name,
         result: {
           ok: true,
           value: {
@@ -104,7 +107,7 @@ describe("ToolManager", () => {
 
       expect(result).toEqual({
         callId,
-        requestedToolName: "No tool found",
+        requestedToolName: "missing_tool",
         result: {
           ok: false,
           code: "not_found",
@@ -139,14 +142,15 @@ describe("ToolManager", () => {
       manager.register(throwingTool);
 
       const result = await manager.call(
-        throwingTool.name,
+        "throwing_tool",
         { id: "tool-123" },
         { callId },
       );
 
       expect(result).toEqual({
         callId,
-        requestedToolName: throwingTool.name,
+        requestedToolName: "throwing_tool",
+        resolvedToolName: throwingTool.name,
         result: {
           ok: false,
           code: "handler_error",

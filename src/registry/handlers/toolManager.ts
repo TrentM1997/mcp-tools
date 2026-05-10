@@ -60,7 +60,7 @@ export class ToolManager {
     if (!tool) {
       return {
         callId: callId,
-        requestedToolName: "No tool found",
+        requestedToolName: name,
         result: {
           ok: false,
           code: "not_found",
@@ -73,7 +73,8 @@ export class ToolManager {
 
     return {
       callId: callId,
-      requestedToolName: tool.name,
+      requestedToolName: name,
+      resolvedToolName: tool.name,
       result,
     };
   }
