@@ -4,12 +4,14 @@ import {
   number,
   boolean,
   literal,
+  nullable,
 } from "./schema/constructors/primitives.js";
 import {
   array,
   object,
   union,
   discriminatedUnion,
+  enumeration,
 } from "./schema/constructors/composites.js";
 import { optional } from "./schema/constructors/modifiers.js";
 import { ToolManager } from "./registry/index.js";
@@ -24,6 +26,8 @@ const s = {
   object,
   union,
   discriminatedUnion,
+  nullable,
+  enum: enumeration,
 };
 
 export { defineTool, s, ToolManager };

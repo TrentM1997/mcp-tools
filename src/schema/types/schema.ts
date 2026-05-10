@@ -1,7 +1,13 @@
 import type { InferObjectShape, ObjectShape } from "./inference.js";
 import type { ParseResult, Path } from "./result.js";
 
-type ExpectedRuntimeType = "string" | "number" | "boolean" | "array" | "object";
+type ExpectedRuntimeType =
+  | "string"
+  | "number"
+  | "boolean"
+  | "array"
+  | "object"
+  | "null";
 
 type JSONLiteral = string | number | boolean;
 
@@ -9,6 +15,7 @@ type JSONSchema =
   | { type: "string" }
   | { type: "number" }
   | { type: "boolean" }
+  | { type: "null" }
   | { type: "array"; items: JSONSchema }
   | {
       type: "object";
@@ -18,7 +25,8 @@ type JSONSchema =
     }
   | { const: JSONLiteral }
   | { anyOf: JSONSchema[] }
-  | { oneOf: JSONSchema[] };
+  | { oneOf: JSONSchema[] }
+  | { enum: JSONLiteral[] };
 
 type ObjectProperties = Record<string, JSONSchema>;
 

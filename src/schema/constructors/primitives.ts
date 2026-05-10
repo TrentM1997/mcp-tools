@@ -76,4 +76,21 @@ function literal<T extends string | number | boolean>(
   };
 }
 
-export { string, number, boolean, literal };
+function nullable<T>(inner: Schema<T>): Schema<T | null> {
+  return defineSchema<T | null>({
+    parseAtPath(input, path) {
+      if (input === null) {
+        return { ok: true, value: null };
+      }
+
+      return inner.parse(input, path);
+    },
+    toJSONSchema() {
+      return {
+        anyOf: [inner.toJSONSchema(), { type: "null" }],
+      };
+    },
+  });
+}
+
+export { string, number, boolean, literal, nullable };

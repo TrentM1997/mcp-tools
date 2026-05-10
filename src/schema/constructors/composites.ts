@@ -1,5 +1,6 @@
 import type {
   DiscriminatedUnionMembers,
+  JSONLiteral,
   ObjectSchema,
   Schema,
 } from "../types/schema.js";
@@ -10,7 +11,10 @@ import type {
   InferDiscriminatedUnion,
 } from "../types/inference.js";
 import { defineSchema } from "../config/defineSchema.js";
-import { expectedTypeFailure } from "../utils/error/failures.js";
+import {
+  expectedEnumFailure,
+  expectedTypeFailure,
+} from "../utils/error/failures.js";
 import { isObject } from "../utils/validation/assertions.js";
 import {
   finalizeArrayResult,
@@ -95,4 +99,25 @@ function discriminatedUnion<
   });
 }
 
-export { array, object, union, discriminatedUnion };
+function enumeration<
+  const TValues extends readonly [JSONLiteral, ...JSONLiteral[]],
+>(values: TValues): Schema<TValues[number]> {
+  const allowed = new Set<JSONLiteral>(values);
+
+  return defineSchema<TValues[number]>({
+    parseAtPath(input, path) {
+      if (!allowed.has(input as JSONLiteral)) {
+        return expectedEnumFailure(path, values, input);
+      }
+
+      return { ok: true, value: input as TValues[number] };
+    },
+    toJSONSchema() {
+      return {
+        enum: [...values],
+      };
+    },
+  });
+}
+
+export { array, object, union, discriminatedUnion, enumeration };

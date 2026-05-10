@@ -22,6 +22,13 @@ type Issue =
       code: "unknown_key";
       key: string;
       message: string;
+    }
+  | {
+      path: Path;
+      code: "invalid_enum";
+      expected: readonly JSONLiteral[];
+      received: unknown;
+      message: string;
     };
 
 type ParseSuccessResult<T> = { ok: true; value: T };

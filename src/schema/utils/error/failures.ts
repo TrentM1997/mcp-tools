@@ -1,5 +1,5 @@
 import type { ParseFailedResult, Path, Issue } from "../../types/result.js";
-import type { ExpectedRuntimeType } from "../../types/schema.js";
+import type { ExpectedRuntimeType, JSONLiteral } from "../../types/schema.js";
 
 type LiteralValue = string | number | boolean;
 
@@ -17,6 +17,25 @@ function expectedLiteralFailure(
         expected: expected,
         received: input,
         message: `Expected literal: ${String(expected)}, received: ${input}`,
+      },
+    ],
+  };
+}
+
+function expectedEnumFailure(
+  path: Path,
+  expected: readonly JSONLiteral[],
+  input: unknown,
+): ParseFailedResult {
+  return {
+    ok: false,
+    issues: [
+      {
+        path,
+        code: "invalid_enum",
+        expected: expected,
+        received: input,
+        message: `Expected one of the following enumerations: ${String(expected.join(", "))}, received: ${input}`,
       },
     ],
   };
@@ -92,4 +111,5 @@ export {
   formatIssuesPath,
   createPathErrorMessage,
   expectedLiteralFailure,
+  expectedEnumFailure,
 };
