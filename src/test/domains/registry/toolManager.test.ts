@@ -73,6 +73,25 @@ describe("ToolManager", () => {
   });
 
   describe("call()", () => {
+    test("Generates a callId when one is not provided", async () => {
+      manager.register(weatherTool);
+
+      const result = await manager.call(weatherTool.name, weatherBloomington);
+
+      expect(result.callId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      );
+      expect(result.requestedToolName).toBe(weatherTool.name);
+      expect(result.resolvedToolName).toBe(weatherTool.name);
+      expect(result.result).toEqual({
+        ok: true,
+        value: {
+          id: weatherBloomington.id,
+          data: weatherBloomington.location,
+        },
+      });
+    });
+
     test("Returns ok: true and the handler result when a registered tool succeeds", async () => {
       const callId = "call-success";
 
@@ -114,6 +133,7 @@ describe("ToolManager", () => {
           reason: "Could not find tool named: missing_tool",
         },
       });
+      expect(result).not.toHaveProperty("resolvedToolName");
     });
 
     test("Returns invalid_input with structured issues and formatted issue text", async () => {

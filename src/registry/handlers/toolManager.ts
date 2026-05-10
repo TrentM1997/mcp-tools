@@ -1,7 +1,6 @@
 import type {
   StoredTool,
   ToolMetadata,
-  ToolCallResult,
   RegistrationResult,
   ToolCallOptions,
   ToolCallResponse,
