@@ -35,11 +35,6 @@ interface DefineSchemaConfig<T> {
   toJSONSchema(): JSONSchema;
 }
 
-type InternalSchema<T> = {
-  parse(input: unknown): ParseResult<T>;
-  parseAtPath(input: unknown, path: Path): ParseResult<T>;
-};
-
 interface Schema<T> {
   parse(input: unknown, path?: Path): ParseResult<T>;
   toJSONSchema(): JSONSchema;
@@ -86,7 +81,6 @@ export type {
   DefineSchemaConfig,
   JSONLiteral,
   JSONSchema,
-  InternalSchema,
   OptionalSchema,
   ObjectProperties,
   ExpectedRuntimeType,

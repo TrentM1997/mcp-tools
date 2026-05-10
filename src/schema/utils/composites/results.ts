@@ -7,6 +7,8 @@ import {
   parseStrictObjectSchema,
 } from "./walkers.js";
 import type { ObjectSchemaConfig } from "../../types/config.js";
+import { isObject } from "../validation/assertions.js";
+import { expectedTypeFailure } from "../error/failures.js";
 
 function finalizeParseResult<TShape extends ObjectShape>(
   input: unknown,
@@ -14,15 +16,13 @@ function finalizeParseResult<TShape extends ObjectShape>(
   path: Path,
   config: ObjectSchemaConfig,
 ): ParseResult<InferObjectShape<TShape>> {
-  const objectInput = input as Record<string, unknown>;
+  if (!isObject(input)) {
+    return expectedTypeFailure(path, "object", input);
+  }
 
   switch (config.unknownKeys) {
     case "strict": {
-      const { issues, values } = parseStrictObjectSchema(
-        shape,
-        objectInput,
-        path,
-      );
+      const { issues, values } = parseStrictObjectSchema(shape, input, path);
 
       if (issues.length > 0) {
         return {
@@ -35,11 +35,7 @@ function finalizeParseResult<TShape extends ObjectShape>(
     }
 
     default: {
-      const { issues, values } = parseObjectProperties(
-        shape,
-        objectInput,
-        path,
-      );
+      const { issues, values } = parseObjectProperties(shape, input, path);
 
       if (issues.length > 0) {
         return {
@@ -52,6 +48,7 @@ function finalizeParseResult<TShape extends ObjectShape>(
     }
   }
 }
+
 function finalizeArrayResult<T>(
   input: Array<T>,
   path: Path,
