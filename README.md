@@ -97,6 +97,8 @@ Supported schema constructors:
 - `s.string()`
 - `s.number()`
 - `s.boolean()`
+- `s.nullable(schema)`
+- `s.enum([...values])`
 - `s.literal(value)`
 - `s.array(itemSchema)`
 - `s.object(shape, config?)`
@@ -128,6 +130,19 @@ const parsed = SearchInput.parse({
 });
 
 const jsonSchema = SearchInput.toJSONSchema();
+```
+
+### Nullable and enum example
+
+```ts
+import { s } from "mcp-tools";
+
+const Status = s.enum(["draft", "published", "archived"]);
+const NullableAssignee = s.nullable(s.string());
+
+Status.parse("draft");
+NullableAssignee.parse(null);
+NullableAssignee.parse("trent");
 ```
 
 ### Object policy example
@@ -182,6 +197,8 @@ Current parser behavior:
 
 - primitive schemas validate by JavaScript runtime type
 - `s.number()` accepts only finite numbers
+- `nullable(schema)` accepts either `null` or a value that passes the inner schema
+- `enum([...values])` accepts one of a finite set of literal values
 - `literal(...)` validates exact equality
 - object schemas validate each declared field
 - optional object fields are skipped when absent
@@ -221,6 +238,13 @@ type ParseFailure = {
       }
     | {
         path: Array<string | number>;
+        code: "invalid_enum";
+        expected: readonly Array<string | number | boolean>;
+        received: unknown;
+        message: string;
+      }
+    | {
+        path: Array<string | number>;
         code: "unknown_key";
         key: string;
         message: string;
@@ -236,15 +260,19 @@ The emitted JSON Schema currently supports:
 - `type: "string"`
 - `type: "number"`
 - `type: "boolean"`
+- `type: "null"`
 - `type: "array"`
 - `type: "object"`
 - `const`
+- `enum`
 - `required`
 - `additionalProperties`
 - `anyOf`
 - `oneOf`
 
 Plain `union(...)` emits `anyOf`, while `discriminatedUnion(...)` emits `oneOf`.
+`nullable(...)` emits `anyOf` with the inner schema plus `{ type: "null" }`.
+`enum(...)` emits `{ enum: [...] }`.
 For objects, `unknownKeys: "strict"` emits `additionalProperties: false`, while `unknownKeys: "ignore"` emits `additionalProperties: true`.
 That keeps the emitted schema aligned with the runtime validators that exist today.
 
@@ -355,7 +383,7 @@ The working core is in place, but the library is still intentionally incomplete.
 
 Current limitations:
 
-- no enums, nullable values, refinements, or transforms yet
+- no refinements or transforms yet
 - the structured issue taxonomy is still small and evolving
 - no protocol, transport, or server layer
 - the package surface is still optimized for local iteration, not polished npm publishing yet
