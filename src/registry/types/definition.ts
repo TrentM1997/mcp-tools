@@ -17,6 +17,14 @@ type ToolDefinition<TInput, TOutput> = {
   outputSchema?: Schema<TOutput>;
 };
 
+export type {
+  ToolDefinition,
+  ToolHandler,
+  ContextualToolDefinition,
+  ToolHandlerWithContext,
+};
+
+//******** experimental type  */
 type ContextualToolDefinition<TInput, TOutput, TContext> = {
   name: string;
   description: string;
@@ -25,9 +33,4 @@ type ContextualToolDefinition<TInput, TOutput, TContext> = {
   outputSchema?: Schema<TOutput>;
 };
 
-export type {
-  ToolDefinition,
-  ToolHandler,
-  ContextualToolDefinition,
-  ToolHandlerWithContext,
-};
+//******** experimental type  */
