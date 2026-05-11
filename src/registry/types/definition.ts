@@ -9,12 +9,25 @@ type ToolHandler<TInput, TOutput> = (
   input: TInput,
 ) => TOutput | Promise<TOutput>;
 
-interface ToolDefinition<TInput, TOutput = unknown> {
+type ToolDefinition<TInput, TOutput> = {
   name: string;
   description: string;
   inputSchema: Schema<TInput>;
-  handler: ToolHandler<TInput, TOutput>;
+  handler: (input: TInput) => TOutput | Promise<TOutput>;
   outputSchema?: Schema<TOutput>;
-}
+};
 
-export type { ToolDefinition, ToolHandler, ToolHandlerWithContext };
+type ContextualToolDefinition<TInput, TOutput, TContext> = {
+  name: string;
+  description: string;
+  inputSchema: Schema<TInput>;
+  handler: (input: TInput, context: TContext) => TOutput | Promise<TOutput>;
+  outputSchema?: Schema<TOutput>;
+};
+
+export type {
+  ToolDefinition,
+  ToolHandler,
+  ContextualToolDefinition,
+  ToolHandlerWithContext,
+};
